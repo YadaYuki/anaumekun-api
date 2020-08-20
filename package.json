@@ -10,6 +10,7 @@
     "dynamodb:install": "sls dynamodb install"
   },
   "dependencies": {
+    "@types/jsonwebtoken": "^8.5.0",
     "@types/supertest": "^2.0.10",
     "serverless-dynamodb-local": "^0.2.39",
     "serverless-offline": "^6.5.0",
