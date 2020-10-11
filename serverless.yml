@@ -1,0 +1,84 @@
+service:
+  name: anaumekun-api
+# app and org for use with dashboard.serverless.com
+#app: your-app-name
+#org: your-org-name
+
+
+# Add the serverless-webpack plugin
+plugins:
+  - serverless-webpack
+  - serverless-dynamodb-local
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  apiGateway:
+    minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
+  stage: ${opt:stage, self:custom.defaultStage}
+  profile: ${opt:profile, self:custom.defaultProfile}
+  region: ${opt:region, self.custom.defaultRegion}
+  dynamodbFile:
+    dev: "dynamodb.yml"
+    production: 'dynamodb.production.yml'
+  environment:
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+custom: 
+  defaultStage: dev
+  defaultProfile: default
+  defaultRegion: ap-northeast-1
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true
+
+functions:
+  hello:
+    handler: handlers/handler.hello
+    events:
+      - http:
+          method: get
+          path: hello
+
+resources:
+  Resources:
+    users:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: users
+        AttributeDefinitions:
+          - AttributeName: user_id
+            AttributeType: N
+          - AttributeName: username
+            AttributeType: S
+          - AttributeName: email
+            AttributeType: S
+          - AttributeName: updated_at 
+            AttributeType: S # YYYY-MM-DD HH:mm
+          - AttributeName: created_at
+            AttributeType: S # YYYY-MM-DD HH:mm
+        KeySchema:
+          - AttributeName: user_id
+            KeyType: HASH
+        
+    tests:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: tests
+      AttributeDefinitions:
+        - AttributeName: test_id
+          AttributeType: N
+        - AttributeName: testname
+          AttributeType: S
+        - AttributeName: content
+          AttributeType: S
+        - AttributeName: updated_at 
+          AttributeType: S # YYYY-MM-DD HH:mm
+        - AttributeName: created_at
+          AttributeType: S # YYYY-MM-DD HH:mm
+        - AttributeName: user_id
+          AttributeType: N
+      KeySchema:
+        - AttributeName: test_id
+          KeyType: HASH
+        
